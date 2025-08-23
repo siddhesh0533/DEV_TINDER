@@ -1,22 +1,22 @@
 const express = require("express");
-const { AdminAuth } = require("./middleware/AdminAuth");
-const { UserAuth } = require("./middleware/UserAuth");
 
 const app = express();
 
-app.use("/admin", AdminAuth)
+app.get("/user", (req, res, next) => {
+    try {
+        throw new error("hvshvsnsl")
+        res.send("hello test")
+    } catch (error) {
+        res.status(500).send("Something goes wrong")
+    }
 
-app.get("/admin/data", (req, res) => {
-    res.send("all data")
 });
 
-app.get("/admin/deleteUser", (req, res) => {
-    res.send("user Deleted")
-});
-
-app.get("/user",UserAuth, (req, res, next) => {
-    res.send("hello test")
-});
+app.use("/", (err, req, res, next) => {
+    if (err) {
+        res.status(500).send("Something went wrong")
+    }
+})
 
 app.listen(7777, () => {
     console.log("running on port 7777");
