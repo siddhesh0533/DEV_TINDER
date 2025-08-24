@@ -1,35 +1,72 @@
 const express = require("express");
 const { connectdb } = require("./config/database")
 const User = require("./model/user")
+const { validateSignUpData } = require("./utils/validate")
+const bcrypt = require("bcrypt")
 
 const app = express();
 
 app.use(express.json());
 
 app.post("/signUp", async (req, res) => {
-
-    const user = new User(req.body);
-
     try {
+        // validate Data
+        validateSignUpData(req);
+
+        const { firstName, lastName, emailId, password } = req.body;
+
+        //encrypt password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            firstName,
+            lastName,
+            password: passwordHash,
+            emailId
+        });
+
         await user.save();
         res.send("user added successfully")
     } catch (error) {
-        res.status(400).send("bad input"+ error.message)
+        res.status(400).send("bad input" + error.message)
     }
 
 });
 
-app.get("/user", async(req, res)=>{
+app.post("/login", async (req, res) => {
+
     try {
-        const user =await User.find({emailId: req.body.emailId})
+        const { emailId, password } = req.body;
+
+        const user = await User.findOne({ emailId: emailId });
+        if (!user) {
+            throw new Error("Invalid Credentials")
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+
+        if (isPasswordValid) {
+            res.send("Logged in Successfully")
+        } else {
+            throw new Error("Invalid Credentials")
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong " + error.message)
+    }
+})
+
+app.get("/user", async (req, res) => {
+    try {
+        const user = await User.find({ emailId: req.body.emailId })
         res.send(user);
     } catch (error) {
-       console.error(error.message);
-        res.send("something went wrong") 
+        console.error(error.message);
+        res.send("something went wrong")
     }
 });
 
-app.get("/feed", async(req, res)=>{
+app.get("/feed", async (req, res) => {
     try {
         const users = await User.find({})
         res.send(users);
@@ -39,9 +76,9 @@ app.get("/feed", async(req, res)=>{
     }
 });
 
-app.delete("/user", async(req, res)=>{
+app.delete("/user", async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete({_id: req.body.userId})
+        const user = await User.findByIdAndDelete({ _id: req.body.userId })
         res.send("user deleted by id!!!")
     } catch (error) {
         console.error(error.message);
@@ -49,9 +86,9 @@ app.delete("/user", async(req, res)=>{
     }
 });
 
-app.delete("/user", async(req, res)=>{
+app.delete("/user", async (req, res) => {
     try {
-        const user = await User.deleteOne({firstName: req.body.firstName})
+        const user = await User.deleteOne({ firstName: req.body.firstName })
         res.send("user deleted by firstname!!!")
     } catch (error) {
         console.error(error.message);
@@ -59,11 +96,11 @@ app.delete("/user", async(req, res)=>{
     }
 });
 
-app.patch("/user/:id", async(req, res)=>{
+app.patch("/user/:id", async (req, res) => {
     try {
 
         const allowed_change = ["firstName", "lastName", "skills"];
-        const isUpdateAllowed = Object.keys(req.body).every((k)=>allowed_change.includes(k))
+        const isUpdateAllowed = Object.keys(req.body).every((k) => allowed_change.includes(k))
 
         if (!isUpdateAllowed) {
             throw new Error("update not allow")
