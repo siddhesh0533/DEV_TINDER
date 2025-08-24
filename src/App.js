@@ -14,7 +14,7 @@ app.post("/signUp", async (req, res) => {
         await user.save();
         res.send("user added successfully")
     } catch (error) {
-        res.status(400).send("bad input")
+        res.status(400).send("bad input"+ error.message)
     }
 
 });
@@ -59,25 +59,33 @@ app.delete("/user", async(req, res)=>{
     }
 });
 
-app.patch("/user", async(req, res)=>{
+app.patch("/user/:id", async(req, res)=>{
     try {
-        const user = await User.findByIdAndUpdate({_id:req.body.id}, req.body)
+
+        const allowed_change = ["firstName", "lastName", "skills"];
+        const isUpdateAllowed = Object.keys(req.body).every((k)=>allowed_change.includes(k))
+
+        if (!isUpdateAllowed) {
+            throw new Error("update not allow")
+        }
+
+        const user = await User.findByIdAndUpdate(req.params.id, req.body)
         res.send("user Updated successfully !!!")
     } catch (error) {
         console.error(error.message);
-        res.send("something went wrong")
+        res.send("something went wrong " + error.message)
     }
 })
 
-app.patch("/user", async(req, res)=>{
-    try {
-        const user = await User.updateOne({firstName: req.body.firstName},{firstName: req.body.newName})
-        res.send("user Updated successfully !!!")
-    } catch (error) {
-        console.error(error.message);
-        res.send("something went wrong")
-    }
-})
+// app.patch("/user", async(req, res)=>{
+//     try {
+//         const user = await User.updateOne({firstName: req.body.firstName},{firstName: req.body.newName})
+//         res.send("user Updated successfully !!!")
+//     } catch (error) {
+//         console.error(error.message);
+//         res.send("something went wrong")
+//     }
+// })
 
 
 connectdb().then(() => {
