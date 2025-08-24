@@ -27,7 +27,7 @@ app.get("/user", async(req, res)=>{
        console.error(error.message);
         res.send("something went wrong") 
     }
-})
+});
 
 app.get("/feed", async(req, res)=>{
     try {
@@ -38,6 +38,47 @@ app.get("/feed", async(req, res)=>{
         res.send("something went wrong")
     }
 });
+
+app.delete("/user", async(req, res)=>{
+    try {
+        const user = await User.findByIdAndDelete({_id: req.body.userId})
+        res.send("user deleted by id!!!")
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong")
+    }
+});
+
+app.delete("/user", async(req, res)=>{
+    try {
+        const user = await User.deleteOne({firstName: req.body.firstName})
+        res.send("user deleted by firstname!!!")
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong")
+    }
+});
+
+app.patch("/user", async(req, res)=>{
+    try {
+        const user = await User.findByIdAndUpdate({_id:req.body.id}, req.body)
+        res.send("user Updated successfully !!!")
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong")
+    }
+})
+
+app.patch("/user", async(req, res)=>{
+    try {
+        const user = await User.updateOne({firstName: req.body.firstName},{firstName: req.body.newName})
+        res.send("user Updated successfully !!!")
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong")
+    }
+})
+
 
 connectdb().then(() => {
     console.log("connected")
