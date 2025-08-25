@@ -2,11 +2,14 @@ const express = require("express");
 const { connectdb } = require("./config/database")
 const User = require("./model/user")
 const { validateSignUpData } = require("./utils/validate")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken")
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser())
 
 app.post("/signUp", async (req, res) => {
     try {
@@ -46,10 +49,39 @@ app.post("/login", async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
         if (isPasswordValid) {
+
+            var token = jwt.sign({_id: user._id}, "Galaxy@07")
+
+            res.cookie("token", token)
+
             res.send("Logged in Successfully")
         } else {
             throw new Error("Invalid Credentials")
         }
+    } catch (error) {
+        console.error(error.message);
+        res.send("something went wrong " + error.message)
+    }
+})
+
+app.get("/profile", async(req, res)=>{
+    try {
+        const cookies = req.cookies;
+
+        const {token} = cookies;
+        if(!token){
+            throw new Error("Invalid token")
+        }
+
+        const decoded = jwt.verify(token, "Galaxy@07")
+        const {_id}= decoded;
+
+        const user = await User.findById(_id)
+        if (!user) {
+            throw new Error("User Not Found!!")
+        }
+        
+        res.send(user)
     } catch (error) {
         console.error(error.message);
         res.send("something went wrong " + error.message)
