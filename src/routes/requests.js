@@ -50,8 +50,6 @@ requestsRouter.post("/request/send/:status/:toUserId",UserAuth, async(req, res)=
 
 requestsRouter.post("/request/review/:status/:requestId",UserAuth, async (req, res) => {
     try {
-        console.log("review api");
-        console.log(req.user)
         
         const loggedInUser = req.user;
         const {status, requestId} = req.params;

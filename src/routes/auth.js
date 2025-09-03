@@ -47,14 +47,13 @@ authRouter.post("/login", async (req, res) => {
 
             const token = user.getJWT();
 
-            res.cookie("token", token, {expires:new Date(Date.now() + 1 * 3600000)})
+            res.cookie("token", token, {expires:new Date(Date.now() + 7 * 3600000)})
 
-            res.send("Logged in Successfully")
+            res.send(user)
         } else {
             throw new Error("Invalid Credentials")
         }
     } catch (error) {
-        console.error(error.message);
         res.send("something went wrong " + error.message)
     }
 })
