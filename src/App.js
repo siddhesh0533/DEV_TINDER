@@ -6,7 +6,7 @@ const cors = require("cors")
 
 app.use(cors({
     origin: 
-        "https://dev-tinder-web-git-main-sid0533s-projects.vercel.app",
+        "https://dev-tinder-web-beta.vercel.app",
     credentials: true
 }));
 app.use(express.json());
