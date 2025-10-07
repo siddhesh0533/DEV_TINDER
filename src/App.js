@@ -5,9 +5,8 @@ const app = express();
 const cors = require("cors")
 
 app.use(cors({
-    origin: ["http://localhost:5173",
-        "https://dev-tinder-web-git-main-sid0533s-projects.vercel.app"
-    ],
+    origin: 
+        "https://dev-tinder-web-git-main-sid0533s-projects.vercel.app",
     credentials: true
 }));
 app.use(express.json());
