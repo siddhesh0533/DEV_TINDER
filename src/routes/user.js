@@ -16,7 +16,7 @@ userRouter.get("/user/requests/received",UserAuth, async(req, res)=>{
             status: "interested"
         }).populate(
             "fromUserId",
-            ["firstName", "lastName", "age", "skills"]
+            ["firstName", "lastName", "age", "skills", "photoUrl", "gender"]
         );
         if (connectionRequest.length === 0) {
             return res.status(404).json({message:"connection request is not found"})
@@ -37,10 +37,10 @@ userRouter.get("/user/requests/connections", UserAuth, async (req, res) => {
 
         const connectionRequests = await ConnectionRequest.find({
             $or:[
-                {toUserId: loggedInUser, status:"interested"},
-                {fromUserId:loggedInUser, status:"interested"}
+                {toUserId: loggedInUser, status:"accepted"},
+                {fromUserId:loggedInUser, status:"accepted"}
             ],
-        }).populate("fromUserId", "firstName lastName age skills gender").populate("toUserId", "firstName lastName age skills gender")
+        }).populate("fromUserId", "firstName lastName age skills gender photoUrl").populate("toUserId", "firstName lastName age skills gender photoUrl")
 
         const data = connectionRequests.map((row)=> {
             if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
@@ -85,11 +85,13 @@ userRouter.get("/user/feed",UserAuth, async (req, res) => {
                 {_id: {$nin: Array.from(hideUserFromFeed)}},
                 {_id: {$ne: loggedInUser._id}}
             ]
-        }).select("firstName lastName age skills gender").skip(skip).limit(limit)
+        }).select("firstName lastName age skills gender photoUrl").skip(skip).limit(limit)
 
         res.json(users)
 
     } catch (error) {
+        console.log(error);
+        
         res.status(400).send("Error: "+ error.message);
     }
 })

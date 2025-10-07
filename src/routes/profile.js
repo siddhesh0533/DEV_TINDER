@@ -21,10 +21,10 @@ profileRouter.get("/profile/view", UserAuth, async (req, res) => {
     }
 })
 
-profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
+profileRouter.patch("/profile/edit",UserAuth, async (req, res) => {
     try {
         if (!validateEditData(req)) {
-            throw new Error("Edit not possible");
+            throw new Error("Edit not possible");          
         }
 
         const loggedInUser = req.user;
@@ -36,7 +36,8 @@ profileRouter.patch("/profile/edit", UserAuth, async (req, res) => {
         res.json({ message: `${loggedInUser.firstName}, your profile is updated successfully!!`, data: loggedInUser })
     } catch (error) {
 
-        res.send("something went wrong " + error.message)
+        res.status(400).json({ error: error.message });
+
     }
 })
 
