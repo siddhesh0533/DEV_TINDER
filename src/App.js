@@ -5,7 +5,9 @@ const app = express();
 const cors = require("cors")
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173",
+        "https://dev-tinder-web-git-main-sid0533s-projects.vercel.app"
+    ],
     credentials: true
 }));
 app.use(express.json());
@@ -23,11 +25,12 @@ app.use("/", userRouter);
 
 connectdb().then(() => {
     console.log("connected")
-    app.listen(7777, () => {
-        console.log("running on port 7777");
-    })
+    // app.listen(7777, () => {
+    //     console.log("running on port 7777");
+    // })
 }).catch(err => {
     console.log("could not connected");
 })
 
+module.exports = app;
 
